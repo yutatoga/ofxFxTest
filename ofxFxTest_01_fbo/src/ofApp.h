@@ -28,9 +28,9 @@ public:
     const int width = 640;
     const int height = 480;
     ofVideoGrabber  videoGrabber;
-    ofFbo fbo;
-    ofxGlow glow;
-    ofxBloom bloom;
+    ofFbo fbo, fboMix;
+    ofxGlow glow, glowMix;
+    ofxBloom bloom, bloomMix;
     ofxPanel panel;
     ofParameter<float> radius;
 };

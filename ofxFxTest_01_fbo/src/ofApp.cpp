@@ -8,14 +8,21 @@ void ofApp::setup(){
     videoGrabber.initGrabber(width , height);
 
     // fbo
-    fbo.allocate(width, height);
+    fbo.allocate(width, height, GL_RGBA);
     fbo.begin();
     ofClear(255,255,255, 0);
     fbo.end();
     
+    fboMix.allocate(width, height, GL_RGBA);
+    fboMix.begin();
+    ofClear(255, 255, 255, 0);
+    fboMix.end();
+    
     // ofxFx
     glow.allocate(width, height);
     bloom.allocate(width, height);
+    glowMix.allocate(width, height);
+    bloomMix.allocate(width, height);
     
     // listener
     radius.addListener(this, &ofApp::radiusChanged);
@@ -34,6 +41,8 @@ void ofApp::update(){
     // ofxFx
     glow.update();
     bloom.update();
+    glowMix.update();
+    bloomMix.update();
 }
 
 //--------------------------------------------------------------
@@ -52,11 +61,27 @@ void ofApp::draw(){
     bloom.setTexture(fbo);
     bloom.draw(0, height, width, height);
     
+    // glow & bloom
+    glowMix.setTexture(fbo);
+    fboMix.begin();
+    ofBackground(0);
+    glowMix.draw(0, 0, width, height);
+    fboMix.end();
+    bloomMix.setTexture(fboMix);
+    bloomMix.draw(width, height, width, height);
+    
     // gui
     panel.draw();
     
     // debug
     ofSetWindowTitle(ofToString(ofGetFrameRate(), 0));
+    
+    ofVec2f bitMapStringOrigin(-5, 8);
+
+    ofDrawBitmapStringHighlight("fbo without ofxFx", 0-bitMapStringOrigin.x , height-bitMapStringOrigin.y, ofColor::white, ofColor::black);
+    ofDrawBitmapStringHighlight("ofxGlow",  width-bitMapStringOrigin.x, height-bitMapStringOrigin.y, ofColor::white, ofColor::black);
+    ofDrawBitmapStringHighlight("ofxGlow & ofxBloom", width-bitMapStringOrigin.x , height*2-bitMapStringOrigin.y, ofColor::white, ofColor::black);
+    ofDrawBitmapStringHighlight("ofxBloom", 0-bitMapStringOrigin.x, height*2-bitMapStringOrigin.y, ofColor::white, ofColor::black);
 }
 
 //--------------------------------------------------------------
@@ -112,4 +137,5 @@ void ofApp::dragEvent(ofDragInfo dragInfo){
 
 void ofApp::radiusChanged(float &radius){
     glow.setRadius(radius);
+    glowMix.setRadius(radius);
 }
